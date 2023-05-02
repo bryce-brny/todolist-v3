@@ -1,6 +1,9 @@
-import { useState, useEffect, createContext } from 'react';
+import { useState, useEffect, createContext, useReducer } from 'react';
 import * as TodoAPIServices from '../services/todoServices';
 import { getSevenDayRange } from '../utils/DateUtils';
+import todoReducer from '../reducers/todoReducer';
+import { INIT_TODO } from '../reducers/todoReducer';
+import { FETCH_TODO } from '../reducers/todoReducer';
 // Create Context => Context Object (NAME)  ใช้ได้ 2 ที่
 // #1 Provider : Wrapper Component => Shared Data,Logic ได้
 // #2 Consumer : Component ที่ต้องการใช้ Data,Logic (Subscribe Component)
@@ -11,17 +14,21 @@ function TodoContextProvider(props) {
     const [todos, setTodos] = useState([]);
     const [todosFilter, setTodosFilter] = useState([]);
 
+    // USE_REDUCER : ครูตุ่ดตู่กับครูเต้คุยกันรู้เรื่อง
+    // Param1 : ใครเป็นคนสรุป ? => ครูเต้ == todoReducer
+    // Param2 : state ตั้งต้นคือ ? => คะแนนตั้งต้น
+    const [allTodoList,dispatch] = useReducer(todoReducer,INIT_TODO)
+    // Return arr[0] : State(Init,updated)
+    // Return arr[1] : dispatch Function : สมุดใบสั่ง
+    console.log("STATE",allTodoList)
+    // console.log("dispatch",dispatchTodo)
+
     // GET : FETCH
     async function fetchAllTodo() {
         try {
-            // #1 : Sync with External Service
             const response = await TodoAPIServices.getAllTodos();
-
-            // #2 : Sync with Internal State
-            setTodos(response.data.todos);
-            setTodosFilter(response.data.todos);
+            dispatch({type : FETCH_TODO, payload : {todos: response.data.todos}})
         } catch (error) {
-            // #3 Error handler
             console.log(error.response.status);
         }
     }
@@ -29,7 +36,7 @@ function TodoContextProvider(props) {
     useEffect(() => {
         fetchAllTodo();
     }, []);
-   
+
     // POST : Add
     const addTodo = async (task) => {
         try {
@@ -89,12 +96,12 @@ function TodoContextProvider(props) {
         try {
             // #1 Sync With External State/Service : Database
             // await axios.delete(`http://localhost:8080/todos/${todoId}`)
-            await TodoAPIServices.deleteTodo(todoId)
+            await TodoAPIServices.deleteTodo(todoId);
 
             // #2 Sync with Internal State : UI State
             const newTodoLists = todos.filter((todo) => todo.id !== todoId);
             setTodos(newTodoLists);
-            setTodosFilter(newTodoLists)
+            setTodosFilter(newTodoLists);
         } catch (error) {
             // #3 Error Handler eg. modal Error, Sweat Alert
             console.log(error.response.data);
@@ -102,7 +109,7 @@ function TodoContextProvider(props) {
     };
 
     // FILTER BY LISTS
-      const selectList = (selectedIndex) => {
+    const selectList = (selectedIndex) => {
         const [today, nextSevenDay] = getSevenDayRange();
         if (selectedIndex == 0) {
             setTodosFilter(todos);
@@ -115,25 +122,38 @@ function TodoContextProvider(props) {
         }
     };
 
-    // SEARCH TODO 
-       const searchTodo = (searchValue) => {
-        const newTodo = todos.filter((todo) => todo.task.toLowerCase().includes(searchValue.toLowerCase()));
+    // SEARCH TODO
+    const searchTodo = (searchValue) => {
+        const newTodo = todos.filter((todo) =>
+            todo.task.toLowerCase().includes(searchValue.toLowerCase())
+        );
         setTodosFilter(newTodo);
     };
 
-
-  
-    return <TodoContext.Provider value={
-        {
-            todos,
-        todosFilter,
-        addTodo,
-        editTodo,
-        deleteTodo,
-        selectList,
-        searchTodo,
-        }
-    }>{props.children}</TodoContext.Provider>;
+    return (
+        <TodoContext.Provider
+            value={{
+                todos : allTodoList.todos,
+                todosFilter : allTodoList.todosFilter,
+                addTodo,
+                editTodo,
+                deleteTodo,
+                selectList,
+                searchTodo,
+            }}
+        >
+            {props.children}
+        </TodoContext.Provider>
+    );
 }
 
 export default TodoContextProvider;
+
+
+// Custom Hook 
+// export const useTodo = () => {
+//     // Consumer
+//     const sharedObj = useContext(TodoContext);
+//     return sharedObj;
+
+// };
