@@ -1,26 +1,13 @@
-import * as TodoAPIServices from '../../services/todoServices'
-
-import { useContext } from 'react';
-import { TodoContext } from '../../contexts/TodoContext';
-
 import { TodoHeader } from './TodoHeader';
 import { AddTodo } from './AddTodo';
 import { TodoLists } from './TodoLists';
 
-
-export function TodoContent({ todos, setTodos, setTodoFilter }) {
-    // # HOOK-AREA : state,Effect,Context
-    const sharedObj = useContext(TodoContext)
-    console.log("TodoContent", sharedObj)
-
-
-    
-
+export function TodoContent() {
     return (
         <main className='content'>
             <TodoHeader />
             <AddTodo />
-            <TodoLists  />
+            <TodoLists />
         </main>
     );
 }

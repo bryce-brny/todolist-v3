@@ -1,21 +1,14 @@
 import styles from './TodoLists.module.scss';
-import { useContext } from 'react';
-import { TodoContext } from '../../contexts/TodoContext';
+import { useTodo } from '../../hooks/useTodo';
 import { TodoItem } from './TodoItem';
 
-export function TodoLists({ onDeleteTodo }) {
-    const sharedObj = useContext(TodoContext);
-    const todosFilter = sharedObj.todosFilter;
-	// const {todosFilter} = useContext(TodoContext);
+export function TodoLists() {
+    const { todosFilter } = useTodo(); // #3
 
     return (
         <ul className={styles.todoList}>
             {todosFilter?.map((item) => (
-                <TodoItem
-                    todo={item}
-                    key={item.id}
-                    
-                />
+                <TodoItem todo={item} key={item.id} />
             ))}
         </ul>
     );

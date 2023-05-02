@@ -1,12 +1,11 @@
-import { useState,useContext } from 'react';
-import { TodoContext } from '../../contexts/TodoContext';
+import { useState } from 'react';
+import { useTodo } from '../../hooks/useTodo';
 import PropTypes from 'prop-types';
 import styles from './TodoForm.module.scss';
 
 TodoForm.propTypes = {
     textConfirm: PropTypes.string.isRequired,
     onSetShow: PropTypes.func.isRequired,
-    onEditTodo: PropTypes.func,
     oldTodo: PropTypes.shape({
         id: PropTypes.oneOfType([PropTypes.string.isRequired, PropTypes.number.isRequired]),
         task: PropTypes.string.isRequired,
@@ -15,11 +14,9 @@ TodoForm.propTypes = {
     }),
 };
 
-export function TodoForm({ textConfirm, onSetShow, oldTodo, onEditTodo }) {
+export function TodoForm({ textConfirm, onSetShow, oldTodo }) {
     // Consumer : TodoContext
-    const sharedObj = useContext(TodoContext)
-    const addTodo = sharedObj.addTodo
-    
+    const { addTodo, editTodo } = useTodo(); //#3 consume
     // State
     const [task, setTask] = useState(oldTodo?.task || '');
     const [error, setError] = useState(false);
@@ -55,7 +52,7 @@ export function TodoForm({ textConfirm, onSetShow, oldTodo, onEditTodo }) {
             onSetShow(false);
         } else if (validTask && oldTodo) {
             // console.log(oldTodo.id)
-            onEditTodo(oldTodo.id, { ...oldTodo,task });
+            editTodo(oldTodo.id, { ...oldTodo, task });
             onSetShow(false);
         }
     };
@@ -88,7 +85,3 @@ export function TodoForm({ textConfirm, onSetShow, oldTodo, onEditTodo }) {
         </form>
     );
 }
-
-
-
-
