@@ -7,8 +7,8 @@ import ProfilePage from '../page/ProfilePage';
 function App() {
     return (
     //    <TodoPage/>;
-       <LoginPage/>
-       // <RegisterPage/>
+      //<LoginPage/>
+       <RegisterPage/>
     );
 }
 
